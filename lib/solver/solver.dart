@@ -8,5 +8,5 @@ class Solver {
 
 void main(List<String> args) {
   final Grid grid = Grid.fromFile('./test/resources/example1.txt');
-  print(grid);
+  print(grid.solve());
 }

@@ -2,11 +2,61 @@ import 'dart:io';
 import 'dart:math';
 
 typedef Row = List<int>;
+typedef Column = List<int>;
 
 class Grid {
   final List<Row> rows;
 
   const Grid({required this.rows});
+
+  // TODO(momo): implement
+  bool get isSolved => false;
+
+  Grid solve() => _solveForRow(0);
+
+  Grid _solveForRow(int index) {
+    final List<Row> possibleRows = _possibleRows(index);
+
+    for (final Row possibleRow in possibleRows) {
+      final Grid grid = _withRow(possibleRow, index);
+
+      if (index < 8) {
+        return grid._solveForRow(index + 1);
+      } else if (grid.isSolved) {
+        return grid;
+      }
+    }
+
+    throw Exception('Unsolvable Sudoku');
+  }
+
+  Grid _withRow(Row row, int index) {
+    final List<Row> rows = List.of(this.rows);
+    rows[index] = row;
+
+    return Grid(rows: rows);
+  }
+
+  List<Row> _possibleRows(int index) {
+    final List<Row> possibleRows = [];
+    final List<Column> columns = List.generate(9, (_) => []);
+
+    for (final Row row in rows) {
+      for (int i = 0; i < row.length; i++) {
+        final int value = row[i];
+
+        if (value > 0) {
+          final Column column = columns[i];
+
+          if (!column.contains(value)) {
+            columns[i].add(value);
+          }
+        }
+      }
+    }
+
+    return possibleRows;
+  }
 
   factory Grid.fromString(String input) {
     final List<String> lines = input.split('\n');
