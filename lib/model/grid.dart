@@ -3,14 +3,58 @@ import 'dart:math';
 
 typedef Row = List<int>;
 typedef Column = List<int>;
+typedef Quadrant = List<int>;
 
 class Grid {
   final List<Row> rows;
 
   const Grid({required this.rows});
 
-  // TODO(momo): implement
-  bool get isSolved => false;
+  List<Column> get columns => [
+    _column(0),
+    _column(1),
+    _column(2),
+    _column(3),
+    _column(4),
+    _column(5),
+    _column(6),
+    _column(7),
+    _column(8),
+  ];
+
+  List<Quadrant> get quadrants => [
+    _quadrant(0, 0),
+    _quadrant(0, 1),
+    _quadrant(0, 2),
+    _quadrant(1, 0),
+    _quadrant(1, 1),
+    _quadrant(1, 2),
+    _quadrant(2, 0),
+    _quadrant(2, 1),
+    _quadrant(2, 2),
+  ];
+
+  bool get isSolved {
+    for (final Row row in rows) {
+      if (row.contains(0) || _hasDuplicates(row)) {
+        return false;
+      }
+    }
+
+    for (final Column column in columns) {
+      if (column.contains(0) || _hasDuplicates(column)) {
+        return false;
+      }
+    }
+
+    for (final Quadrant quadrant in quadrants) {
+      if (quadrant.contains(0) || _hasDuplicates(quadrant)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   Grid solve() => _solveForRow(0);
 
@@ -80,19 +124,9 @@ class Grid {
 
     if (value == 0) {
       final Set<int> invalidValues = {
-        ..._filterNonZero(rows[row]),
-        ..._filterNonZero([
-          rows[0][column],
-          rows[1][column],
-          rows[2][column],
-          rows[3][column],
-          rows[4][column],
-          rows[5][column],
-          rows[6][column],
-          rows[7][column],
-          rows[8][column],
-        ]),
-        ..._filterNonZero(_quadrantAt(row, column)),
+        ...rows[row],
+        ..._column(column),
+        ..._quadrant(row, column),
       };
       final List<int> result = [];
 
@@ -108,13 +142,22 @@ class Grid {
     }
   }
 
-  List<int> _filterNonZero(List<int> input) =>
-      input.where((e) => e != 0).toList();
+  Column _column(int index) => [
+    rows[0][index],
+    rows[1][index],
+    rows[2][index],
+    rows[3][index],
+    rows[4][index],
+    rows[5][index],
+    rows[6][index],
+    rows[7][index],
+    rows[8][index],
+  ];
 
-  List<int> _quadrantAt(int row, int column) {
+  Quadrant _quadrant(int row, int column) {
     final int quadrantRow = row ~/ 3;
     final int quadrantColumn = column ~/ 3;
-    final List<int> result = [];
+    final Quadrant result = [];
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
