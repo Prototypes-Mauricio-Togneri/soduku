@@ -41,14 +41,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _parseImage() async {
     final TextRecognizer textRecognizer = TextRecognizer();
+    final List<String> row = [];
 
-    final String value = await _parseCell(
-      textRecognizer: textRecognizer,
-      rect: const Rect.fromLTWH(0, 0, 110, 110),
-    );
+    for (int i = 0; i < 9; i++) {
+      final String value = await _parseCell(
+        textRecognizer: textRecognizer,
+        rect: Rect.fromLTWH(i * 110, 0, 110, 110),
+      );
+      row.add(value.isEmpty ? '0' : value);
+    }
 
     setState(() {
-      detectedText = value;
+      detectedText = row.toString();
     });
   }
 
@@ -56,14 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
     required TextRecognizer textRecognizer,
     required Rect rect,
   }) async {
-    final InputImage inputImage = await _inputImage(
-      const Rect.fromLTWH(0, 0, 110, 110),
-    );
+    final InputImage inputImage = await _inputImage(rect);
     final RecognizedText recognizedText = await textRecognizer.processImage(
       inputImage,
     );
 
-    return recognizedText.text;
+    return recognizedText.text.trim();
   }
 
   Future _inputImage(Rect rect) async {
