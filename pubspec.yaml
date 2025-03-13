@@ -7,6 +7,7 @@ environment:
   sdk: '>=3.7.0 <4.0.0'
 
 dependencies:
+  image: ^3.0.1
   path_provider: ^2.0.11
   google_mlkit_text_recognition: ^0.14.0
   

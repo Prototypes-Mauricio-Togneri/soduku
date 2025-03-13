@@ -1,7 +1,8 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image/image.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -64,7 +65,20 @@ class MyHomePage extends StatelessWidget {
     }
   }
 
-  Future<InputImage> _inputImage() async {
+  Future _inputImage() async {
+    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
+    final Image originalImage = decodeImage(data.buffer.asUint8List())!;
+    final Image subImage = copyCrop(originalImage, 0, 0, 110, 110);
+
+    //final Directory directory = await getTemporaryDirectory();
+    final Directory? directory = await getDownloadsDirectory();
+    final File file = File('${directory?.path}/sub_image.png');
+    await file.writeAsBytes(encodePng(subImage));
+
+    return InputImage.fromFile(file);
+  }
+
+  Future<InputImage> inputImage2() async {
     final ByteData buffer = await rootBundle.load('assets/example/sudoku.png');
     final Directory? directory = await getDownloadsDirectory();
     final File file = File('${directory?.path}/sudoku.png');
