@@ -1,13 +1,22 @@
 name: sudoku_solver
-description: A sudoku solver.
+description: A Sudoku solver
 publish_to: none
 version: 0.0.1
 
 environment:
   sdk: '>=3.7.0 <4.0.0'
 
-#dependencies:
+dependencies:
+  google_mlkit_text_recognition: ^0.14.0
+  
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
-  test: ^1.25.15
   flutter_lints: ^5.0.0
+
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
