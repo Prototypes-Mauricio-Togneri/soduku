@@ -92,7 +92,7 @@ class Grid {
           rows[7][column],
           rows[8][column],
         ]),
-        ..._quadrantAt(row, column),
+        ..._filterNonZero(_quadrantAt(row, column)),
       };
       final List<int> result = [];
 
@@ -119,10 +119,7 @@ class Grid {
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         final int value = _get(quadrantRow * 3 + i, quadrantColumn * 3 + j);
-
-        if (value != 0) {
-          result.add(value);
-        }
+        result.add(value);
       }
     }
 
