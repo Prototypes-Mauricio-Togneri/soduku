@@ -42,15 +42,15 @@ class Grid {
   List<Row> _possibleRows(int index) {
     final List<Row> result = [];
 
-    for (final int a in _uniqueValuesAt(index, 0)) {
-      for (final int b in _uniqueValuesAt(index, 1)) {
-        for (final int c in _uniqueValuesAt(index, 2)) {
-          for (final int d in _uniqueValuesAt(index, 3)) {
-            for (final int e in _uniqueValuesAt(index, 4)) {
-              for (final int f in _uniqueValuesAt(index, 5)) {
-                for (final int g in _uniqueValuesAt(index, 6)) {
-                  for (final int h in _uniqueValuesAt(index, 7)) {
-                    for (final int i in _uniqueValuesAt(index, 8)) {
+    for (final int a in _possibleValuesAt(index, 0)) {
+      for (final int b in _possibleValuesAt(index, 1)) {
+        for (final int c in _possibleValuesAt(index, 2)) {
+          for (final int d in _possibleValuesAt(index, 3)) {
+            for (final int e in _possibleValuesAt(index, 4)) {
+              for (final int f in _possibleValuesAt(index, 5)) {
+                for (final int g in _possibleValuesAt(index, 6)) {
+                  for (final int h in _possibleValuesAt(index, 7)) {
+                    for (final int i in _possibleValuesAt(index, 8)) {
                       final Row row = [a, b, c, d, e, f, g, h, i];
 
                       if (!_hasDuplicates(row)) {
@@ -69,13 +69,13 @@ class Grid {
     return result;
   }
 
-  bool _hasDuplicates(List<int> values) {
+  bool _hasDuplicates(Row values) {
     final Set<int> uniqueValues = values.toSet();
 
     return uniqueValues.length != values.length;
   }
 
-  List<int> _uniqueValuesAt(int row, int column) {
+  List<int> _possibleValuesAt(int row, int column) {
     final int value = _get(row, column);
 
     if (value == 0) {
@@ -92,6 +92,7 @@ class Grid {
           rows[7][column],
           rows[8][column],
         ]),
+        ..._quadrantAt(row, column),
       };
       final List<int> result = [];
 
@@ -109,6 +110,24 @@ class Grid {
 
   List<int> _filterNonZero(List<int> input) =>
       input.where((e) => e != 0).toList();
+
+  List<int> _quadrantAt(int row, int column) {
+    final int quadrantRow = row ~/ 3;
+    final int quadrantColumn = column ~/ 3;
+    final List<int> result = [];
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        final int value = _get(quadrantRow * 3 + i, quadrantColumn * 3 + j);
+
+        if (value != 0) {
+          result.add(value);
+        }
+      }
+    }
+
+    return result;
+  }
 
   factory Grid.fromString(String input) {
     final List<String> lines = input.split('\n');
