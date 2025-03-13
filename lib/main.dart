@@ -50,41 +50,53 @@ class _MyHomePageState extends State<MyHomePage> {
       detectedText = '';
     });
 
+    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
+    final Image image = decodeImage(data.buffer.asUint8List())!;
     final TextRecognizer textRecognizer = TextRecognizer();
+
     final List<String> row1 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 0,
     );
     final List<String> row2 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 1,
     );
     final List<String> row3 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 2,
     );
     final List<String> row4 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 3,
     );
     final List<String> row5 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 4,
     );
     final List<String> row6 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 5,
     );
     final List<String> row7 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 6,
     );
     final List<String> row8 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 7,
     );
     final List<String> row9 = await _parseRow(
       textRecognizer: textRecognizer,
+      originalImage: image,
       y: 8,
     );
 
@@ -96,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<String>> _parseRow({
     required TextRecognizer textRecognizer,
+    required Image originalImage,
     required int y,
   }) async {
     final List<String> result = [];
@@ -103,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int i = 0; i < 9; i++) {
       final String value = await _parseCell(
         textRecognizer: textRecognizer,
+        originalImage: originalImage,
         rect: Rect.fromLTWH(i * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
       );
       result.add(value.isEmpty ? '0' : value);
@@ -113,9 +127,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> _parseCell({
     required TextRecognizer textRecognizer,
+    required Image originalImage,
     required Rect rect,
   }) async {
-    final InputImage inputImage = await _inputImage(rect);
+    final InputImage inputImage = await _inputImage(
+      originalImage: originalImage,
+      rect: rect,
+    );
     final RecognizedText recognizedText = await textRecognizer.processImage(
       inputImage,
     );
@@ -125,9 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return result.isEmpty ? '' : result.substring(0, 1);
   }
 
-  Future _inputImage(Rect rect) async {
-    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
-    final Image originalImage = decodeImage(data.buffer.asUint8List())!;
+  Future _inputImage({required Image originalImage, required Rect rect}) async {
     final Image subImage = copyCrop(
       originalImage,
       rect.left.toInt(),
