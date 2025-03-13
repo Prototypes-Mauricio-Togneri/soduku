@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 typedef Row = List<int>;
 
@@ -23,6 +24,28 @@ class Grid {
     final String input = File(filePath).readAsStringSync();
 
     return Grid.fromString(input);
+  }
+
+  factory Grid.random() {
+    final List<Row> rows = [];
+    final Random random = Random();
+
+    for (int i = 0; i < 9; i++) {
+      final List<int> row = [
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+        random.nextInt(10),
+      ];
+      rows.add(row);
+    }
+
+    return Grid(rows: rows);
   }
 
   @override
