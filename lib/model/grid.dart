@@ -37,26 +37,68 @@ class Grid {
     return Grid(rows: rows);
   }
 
+  int _get(int row, int column) => rows[row][column];
+
   List<Row> _possibleRows(int index) {
-    final List<Row> possibleRows = [];
-    final List<Column> columns = List.generate(9, (_) => []);
+    final List<Row> result = [];
 
-    for (final Row row in rows) {
-      for (int i = 0; i < row.length; i++) {
-        final int value = row[i];
-
-        if (value > 0) {
-          final Column column = columns[i];
-
-          if (!column.contains(value)) {
-            columns[i].add(value);
+    for (final int a in _uniqueValuesAt(index, 0)) {
+      for (final int b in _uniqueValuesAt(index, 1)) {
+        for (final int c in _uniqueValuesAt(index, 2)) {
+          for (final int d in _uniqueValuesAt(index, 3)) {
+            for (final int e in _uniqueValuesAt(index, 4)) {
+              for (final int f in _uniqueValuesAt(index, 5)) {
+                for (final int g in _uniqueValuesAt(index, 6)) {
+                  for (final int h in _uniqueValuesAt(index, 7)) {
+                    for (final int i in _uniqueValuesAt(index, 8)) {
+                      result.add([a, b, c, d, e, f, g, h, i]);
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     }
 
-    return possibleRows;
+    return result;
   }
+
+  List<int> _uniqueValuesAt(int row, int column) {
+    final int value = _get(row, column);
+
+    if (value == 0) {
+      final Set<int> invalidValues = {
+        ..._filterNonZero(rows[row]),
+        ..._filterNonZero([
+          rows[0][column],
+          rows[1][column],
+          rows[2][column],
+          rows[3][column],
+          rows[4][column],
+          rows[5][column],
+          rows[6][column],
+          rows[7][column],
+          rows[8][column],
+        ]),
+      };
+      final List<int> result = [];
+
+      for (int i = 1; i <= 9; i++) {
+        if (!invalidValues.contains(i)) {
+          result.add(i);
+        }
+      }
+
+      return result;
+    } else {
+      return [value];
+    }
+  }
+
+  List<int> _filterNonZero(List<int> input) =>
+      input.where((e) => e != 0).toList();
 
   factory Grid.fromString(String input) {
     final List<String> lines = input.split('\n');
