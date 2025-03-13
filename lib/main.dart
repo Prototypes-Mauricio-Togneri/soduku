@@ -27,6 +27,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String detectedText = '';
+  final double CELL_SIZE = 113.777777778;
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +42,64 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _parseImage() async {
     final TextRecognizer textRecognizer = TextRecognizer();
-    final List<String> row = [];
+    final List<String> row1 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 0,
+    );
+    final List<String> row2 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 1,
+    );
+    final List<String> row3 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 2,
+    );
+    final List<String> row4 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 3,
+    );
+    final List<String> row5 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 4,
+    );
+    final List<String> row6 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 5,
+    );
+    final List<String> row7 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 6,
+    );
+    final List<String> row8 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 7,
+    );
+    final List<String> row9 = await _parseRow(
+      textRecognizer: textRecognizer,
+      y: 8,
+    );
+
+    setState(() {
+      detectedText =
+          '$row1\n$row2\n$row3\n$row4\n$row5\n$row6\n$row7\n$row8\n$row9';
+    });
+  }
+
+  Future<List<String>> _parseRow({
+    required TextRecognizer textRecognizer,
+    required int y,
+  }) async {
+    final List<String> result = [];
 
     for (int i = 0; i < 9; i++) {
       final String value = await _parseCell(
         textRecognizer: textRecognizer,
-        rect: Rect.fromLTWH(i * 110, 0, 110, 110),
+        rect: Rect.fromLTWH(i * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
       );
-      row.add(value.isEmpty ? '0' : value);
+      result.add(value.isEmpty ? '0' : value);
     }
 
-    setState(() {
-      detectedText = row.toString();
-    });
+    return result;
   }
 
   Future<String> _parseCell({
@@ -65,7 +111,9 @@ class _MyHomePageState extends State<MyHomePage> {
       inputImage,
     );
 
-    return recognizedText.text.trim();
+    final String result = recognizedText.text.trim();
+
+    return result.isEmpty ? '' : result.substring(0, 1);
   }
 
   Future _inputImage(Rect rect) async {
