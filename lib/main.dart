@@ -40,21 +40,42 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _parseImage() async {
-    final InputImage inputImage = await _inputImage();
     final TextRecognizer textRecognizer = TextRecognizer();
+
+    final String value = await _parseCell(
+      textRecognizer: textRecognizer,
+      rect: const Rect.fromLTWH(0, 0, 110, 110),
+    );
+
+    setState(() {
+      detectedText = value;
+    });
+  }
+
+  Future<String> _parseCell({
+    required TextRecognizer textRecognizer,
+    required Rect rect,
+  }) async {
+    final InputImage inputImage = await _inputImage(
+      const Rect.fromLTWH(0, 0, 110, 110),
+    );
     final RecognizedText recognizedText = await textRecognizer.processImage(
       inputImage,
     );
 
-    setState(() {
-      detectedText = recognizedText.text;
-    });
+    return recognizedText.text;
   }
 
-  Future _inputImage() async {
+  Future _inputImage(Rect rect) async {
     final ByteData data = await rootBundle.load('assets/example/sudoku.png');
     final Image originalImage = decodeImage(data.buffer.asUint8List())!;
-    final Image subImage = copyCrop(originalImage, 0, 0, 110, 110);
+    final Image subImage = copyCrop(
+      originalImage,
+      rect.left.toInt(),
+      rect.top.toInt(),
+      rect.width.toInt(),
+      rect.height.toInt(),
+    );
 
     //final Directory directory = await getTemporaryDirectory();
     final Directory? directory = await getDownloadsDirectory();
