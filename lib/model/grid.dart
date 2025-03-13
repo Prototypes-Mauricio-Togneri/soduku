@@ -56,9 +56,17 @@ class Grid {
     return true;
   }
 
-  Grid solve() => _solveForRow(0);
+  Grid solve() {
+    final Grid? solution = _solveForRow(0);
 
-  Grid _solveForRow(int index) {
+    if (solution != null) {
+      return solution;
+    } else {
+      throw Exception('Unsolvable Sudoku');
+    }
+  }
+
+  Grid? _solveForRow(int index) {
     final List<Row> possibleRows = _possibleRows(index);
 
     for (final Row possibleRow in possibleRows) {
@@ -71,7 +79,7 @@ class Grid {
       }
     }
 
-    throw Exception('Unsolvable Sudoku');
+    return null;
   }
 
   Grid _withRow(Row row, int index) {
