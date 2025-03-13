@@ -83,10 +83,10 @@ class Grid {
   }
 
   Grid _withRow(Row row, int index) {
-    final List<Row> rows = List.of(this.rows);
-    rows[index] = row;
+    final List<Row> newRows = List.of(rows);
+    newRows[index] = row;
 
-    return Grid(rows: rows);
+    return Grid(rows: newRows);
   }
 
   int _get(int row, int column) => rows[row][column];
