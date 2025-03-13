@@ -73,7 +73,11 @@ class Grid {
       final Grid grid = _withRow(possibleRow, index);
 
       if (index < 8) {
-        return grid._solveForRow(index + 1);
+        final Grid? newGrid = grid._solveForRow(index + 1);
+
+        if (newGrid != null) {
+          return newGrid;
+        }
       } else if (grid.isSolved) {
         return grid;
       }
@@ -250,4 +254,9 @@ class Grid {
   }
 
   String _printCell(int value) => value == 0 ? '_' : value.toString();
+}
+
+void main(List<String> args) {
+  final Grid grid = Grid.fromFile('./test/resources/example1.txt');
+  print(grid.solve());
 }
