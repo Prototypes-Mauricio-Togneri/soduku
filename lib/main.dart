@@ -66,10 +66,8 @@ class MyHomePage extends StatelessWidget {
 
   Future<InputImage> _inputImage() async {
     final ByteData buffer = await rootBundle.load('assets/example/sudoku.png');
-
-    final Directory directory = await getApplicationDocumentsDirectory();
-    final String tempPath = directory.path;
-    final File file = File('$tempPath/sudoku.png');
+    final Directory? directory = await getDownloadsDirectory();
+    final File file = File('${directory?.path}/sudoku.png');
     await file.writeAsBytes(buffer.buffer.asUint8List());
 
     return InputImage.fromFile(file);
