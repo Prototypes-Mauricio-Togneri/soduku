@@ -160,8 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return InputImage.fromFile(file);
   }
 
-  Future<InputImage> inputImage2() async {
-    final ByteData buffer = await rootBundle.load('assets/example/sudoku.png');
+  Future<InputImage> inputImageCleaned() async {
+    final ByteData buffer = await rootBundle.load('assets/example/cleaned.png');
     final Directory? directory = await getDownloadsDirectory();
     final File file = File('${directory?.path}/sudoku.png');
     await file.writeAsBytes(buffer.buffer.asUint8List());
