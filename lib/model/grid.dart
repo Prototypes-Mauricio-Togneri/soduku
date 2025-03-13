@@ -51,7 +51,11 @@ class Grid {
                 for (final int g in _uniqueValuesAt(index, 6)) {
                   for (final int h in _uniqueValuesAt(index, 7)) {
                     for (final int i in _uniqueValuesAt(index, 8)) {
-                      result.add([a, b, c, d, e, f, g, h, i]);
+                      final Row row = [a, b, c, d, e, f, g, h, i];
+
+                      if (!_hasDuplicates(row)) {
+                        result.add([a, b, c, d, e, f, g, h, i]);
+                      }
                     }
                   }
                 }
@@ -63,6 +67,12 @@ class Grid {
     }
 
     return result;
+  }
+
+  bool _hasDuplicates(List<int> values) {
+    final Set<int> uniqueValues = values.toSet();
+
+    return uniqueValues.length != values.length;
   }
 
   List<int> _uniqueValuesAt(int row, int column) {
