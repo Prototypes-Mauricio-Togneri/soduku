@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,7 +43,16 @@ class MyHomePage extends StatelessWidget {
   }
 
   Future _parseImage() async {
-    final InputImage inputImage = InputImage.fromFilePath('example/sudoku.png');
+    final String data = await rootBundle.loadString(
+      'assets/example/sudoku.png',
+    );
+
+    final Directory directory = await getApplicationDocumentsDirectory();
+    final String tempPath = directory.path;
+    final File file = File('$tempPath/sudoku.png');
+    await file.writeAsBytes(Uint8List.fromList(data.codeUnits));
+
+    final InputImage inputImage = InputImage.fromFile(file);
     final TextRecognizer textRecognizer = TextRecognizer(
       script: TextRecognitionScript.latin,
     );

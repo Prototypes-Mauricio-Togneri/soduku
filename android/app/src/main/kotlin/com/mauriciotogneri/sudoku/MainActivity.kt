@@ -1,4 +1,4 @@
-package com.mauriciotogneri.sudoku.sudoku_solver
+package com.mauriciotogneri.sudoku
 
 import io.flutter.embedding.android.FlutterActivity
 
