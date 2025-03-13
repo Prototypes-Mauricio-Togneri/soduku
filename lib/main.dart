@@ -46,23 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
       inputImage,
     );
 
-    final String text = recognizedText.text;
-    print(text);
-
-    for (final TextBlock block in recognizedText.blocks) {
-      final String text = block.text;
-      print(text);
-
-      for (final TextLine line in block.lines) {
-        for (final TextElement element in line.elements) {
-          final String text = element.text;
-          print(text);
-        }
-      }
-    }
-
     setState(() {
-      detectedText = text;
+      detectedText = recognizedText.text;
     });
   }
 
