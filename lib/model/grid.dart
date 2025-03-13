@@ -24,4 +24,28 @@ class Grid {
 
     return Grid.fromString(input);
   }
+
+  @override
+  String toString() {
+    String result = '';
+
+    result += '┌───────┬───────┬───────┐\n';
+    result += _printRow(rows[0]);
+    result += _printRow(rows[1]);
+    result += _printRow(rows[2]);
+    result += '├───────┼───────┼───────┤\n';
+    result += _printRow(rows[3]);
+    result += _printRow(rows[4]);
+    result += _printRow(rows[5]);
+    result += '├───────┼───────┼───────┤\n';
+    result += _printRow(rows[6]);
+    result += _printRow(rows[7]);
+    result += _printRow(rows[8]);
+    result += '└───────┴───────┴───────┘\n';
+
+    return result;
+  }
+
+  String _printRow(Row row) =>
+      '│ ${row[0]} ${row[1]} ${row[2]} │ ${row[3]} ${row[4]} ${row[5]} │ ${row[6]} ${row[7]} ${row[8]} │\n';
 }
