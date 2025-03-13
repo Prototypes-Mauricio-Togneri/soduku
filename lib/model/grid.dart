@@ -69,6 +69,16 @@ class Grid {
     return result;
   }
 
-  String _printRow(Row row) =>
-      '│ ${row[0]} ${row[1]} ${row[2]} │ ${row[3]} ${row[4]} ${row[5]} │ ${row[6]} ${row[7]} ${row[8]} │\n';
+  String _printRow(Row row) {
+    final String column1 =
+        '${_printCell(row[0])} ${_printCell(row[1])} ${_printCell(row[2])}';
+    final String column2 =
+        '${_printCell(row[3])} ${_printCell(row[4])} ${_printCell(row[5])}';
+    final String column3 =
+        '${_printCell(row[6])} ${_printCell(row[7])} ${_printCell(row[8])}';
+
+    return '│ $column1 │ $column2 │ $column3 │\n';
+  }
+
+  String _printCell(int value) => value == 0 ? ' ' : value.toString();
 }
