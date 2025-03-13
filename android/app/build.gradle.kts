@@ -6,8 +6,8 @@ plugins {
 
 android {
     namespace = "com.mauriciotogneri.sudoku.sudoku_solver"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 34
+    ndkVersion = "28.0.13004108"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId = "com.mauriciotogneri.sudoku.sudoku_solver"
         minSdk = 21
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 33
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
