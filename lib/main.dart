@@ -10,33 +10,30 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(),
-    );
+    return const MaterialApp(title: 'Flutter Demo', home: MyHomePage());
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage();
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  String detectedText = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Sudoku'),
-      ),
+      body: Center(child: Text(detectedText)),
       floatingActionButton: FloatingActionButton(
         onPressed: _parseImage,
-        tooltip: 'Parse',
         child: const Icon(Icons.add),
       ),
     );
@@ -63,6 +60,10 @@ class MyHomePage extends StatelessWidget {
         }
       }
     }
+
+    setState(() {
+      detectedText = text;
+    });
   }
 
   Future _inputImage() async {
