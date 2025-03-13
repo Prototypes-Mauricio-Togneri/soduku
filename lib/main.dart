@@ -32,7 +32,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text(detectedText)),
+      body: Center(
+        child:
+            detectedText.isEmpty
+                ? const CircularProgressIndicator()
+                : Text(detectedText),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _parseImage,
         child: const Icon(Icons.add),
@@ -41,6 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _parseImage() async {
+    setState(() {
+      detectedText = '';
+    });
+
     final TextRecognizer textRecognizer = TextRecognizer();
     final List<String> row1 = await _parseRow(
       textRecognizer: textRecognizer,
