@@ -80,5 +80,5 @@ class Grid {
     return '│ $column1 │ $column2 │ $column3 │\n';
   }
 
-  String _printCell(int value) => value == 0 ? ' ' : value.toString();
+  String _printCell(int value) => value == 0 ? '_' : value.toString();
 }

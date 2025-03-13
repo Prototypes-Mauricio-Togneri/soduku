@@ -7,6 +7,6 @@ class Solver {
 }
 
 void main(List<String> args) {
-  final Grid grid = Grid.random();
+  final Grid grid = Grid.fromFile('./test/resources/example1.txt');
   print(grid);
 }
