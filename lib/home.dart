@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart';
+import 'package:image/image.dart' as img;
 import 'package:sudoku_solver/grid.dart' hide Column;
 import 'package:sudoku_solver/scanner.dart';
 
@@ -43,7 +43,7 @@ class _HomeState extends State<Home> {
     });
 
     try {
-      final Image image = await _getImage();
+      final img.Image image = await _getImage();
       final Grid inputGrid = await Scanner().scan(image);
       final Grid outputGrid = inputGrid.solve();
       operation = Operation(
@@ -83,10 +83,10 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<Image> _getImage() async {
+  Future<img.Image> _getImage() async {
     final ByteData data = await rootBundle.load('assets/example/sudoku.png');
 
-    return decodeImage(data.buffer.asUint8List())!;
+    return img.decodeImage(data.buffer.asUint8List())!;
   }
 }
 
@@ -149,17 +149,62 @@ class ResultGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(36),
-      child: AspectRatio(aspectRatio: 1, child: Placeholder()),
+    return Padding(
+      padding: const EdgeInsets.all(36),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Stack(
+          children: [
+            Image.memory(
+              Uint8List.fromList(img.encodePng(operation.inputImage)),
+            ),
+            CustomPaint(painter: SolutionPainter(operation)),
+          ],
+        ),
+      ),
     );
   }
+}
+
+class SolutionPainter extends CustomPainter {
+  final Operation operation;
+
+  const SolutionPainter(this.operation);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double fontSize = size.width / 9;
+    print(fontSize);
+
+    final TextPainter textPainter = TextPainter(
+      text: const TextSpan(
+        text: '5',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: 30,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(minWidth: 0, maxWidth: size.width);
+
+    final Offset offset = Offset(
+      (size.width - textPainter.width) / 2,
+      (size.height - textPainter.height) / 2,
+    );
+
+    textPainter.paint(canvas, offset);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 enum HomeState { initial, processing, result }
 
 class Operation {
-  final Image inputImage;
+  final img.Image inputImage;
   final Grid inputGrid;
   final Grid outputGrid;
 
