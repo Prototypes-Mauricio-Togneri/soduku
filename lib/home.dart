@@ -46,6 +46,10 @@ class _HomeState extends State<Home> {
       final img.Image image = await _getImage();
       final Grid inputGrid = await Scanner().scan(image);
       final Grid outputGrid = inputGrid.solve();
+
+      print(inputGrid);
+      print(outputGrid);
+
       operation = Operation(
         inputImage: image,
         inputGrid: inputGrid,
@@ -187,8 +191,8 @@ class SolutionPainter extends CustomPainter {
 
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
-        final int valueInput = inputGrid.get(i, j);
-        final int valueOutput = outputGrid.get(i, j);
+        final int valueInput = inputGrid.get(j, i);
+        final int valueOutput = outputGrid.get(j, i);
 
         if (valueOutput != valueInput) {
           _drawValue(
