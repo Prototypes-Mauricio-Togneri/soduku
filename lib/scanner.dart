@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sudoku_solver/grid.dart';
 
 class Scanner {
-  Future<String> scan() async {
+  Future<Grid> scan() async {
     final TextRecognizer textRecognizer = TextRecognizer();
     final Image image = await _getImage();
     final double cellSize = _cellSize(image);
@@ -23,7 +23,7 @@ class Scanner {
       rows.add(row);
     }
 
-    return rows.toString();
+    return Grid(rows: rows);
   }
 
   Future<Image> _getImage() async {

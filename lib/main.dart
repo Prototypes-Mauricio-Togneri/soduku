@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sudoku_solver/grid.dart';
 import 'package:sudoku_solver/scanner.dart';
 
 void main() {
@@ -31,7 +32,10 @@ class _MyHomePageState extends State<MyHomePage> {
         child:
             detectedText.isEmpty
                 ? const CircularProgressIndicator()
-                : Text(detectedText),
+                : Text(
+                  detectedText,
+                  style: const TextStyle(fontFamily: 'Monospace'),
+                ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _parseImage,
@@ -45,8 +49,10 @@ class _MyHomePageState extends State<MyHomePage> {
       detectedText = '';
     });
 
-    detectedText = await Scanner().scan();
+    final Grid grid = await Scanner().scan();
 
-    setState(() {});
+    setState(() {
+      detectedText = grid.toString();
+    });
   }
 }
