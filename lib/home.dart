@@ -12,24 +12,22 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Grid? inputGrid;
-  Grid? outputGrid;
+  Operation? operation;
   HomeState state = HomeState.initial;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body:
-          state == HomeState.initial
-              ? Initial(_onScan)
-              : state == HomeState.processing
-              ? const Processing()
-              : Result(
-                inputGrid: inputGrid!,
-                outputGrid: outputGrid!,
-                onScan: _onScan,
-              ),
-    );
+    return Scaffold(body: body);
+  }
+
+  Widget get body {
+    if (state == HomeState.initial) {
+      return Initial(_onScan);
+    } else if (state == HomeState.processing) {
+      return const Processing();
+    } else {
+      return Result(operation: operation!, onScan: _onScan);
+    }
   }
 
   Future _onScan() async {
@@ -37,22 +35,45 @@ class _HomeState extends State<Home> {
       state = HomeState.processing;
     });
 
-    final Image image = await _getImage();
-    inputGrid = await Scanner().scan(image);
-
     try {
-      outputGrid = inputGrid!.solve();
+      final Image image = await _getImage();
+      final Grid inputGrid = await Scanner().scan(image);
+      final Grid outputGrid = inputGrid.solve();
+      operation = Operation(
+        inputImage: image,
+        inputGrid: inputGrid,
+        outputGrid: outputGrid,
+      );
 
       setState(() {
         state = HomeState.result;
       });
     } catch (e) {
-      // TODO(momo): show error message
+      _showError();
 
       setState(() {
         state = HomeState.initial;
       });
     }
+  }
+
+  void _showError() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: const Text('The Sudoku could not be solved.'),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<Image> _getImage() async {
@@ -98,35 +119,26 @@ class Processing extends StatelessWidget {
 }
 
 class Result extends StatelessWidget {
-  final Grid inputGrid;
-  final Grid outputGrid;
+  final Operation operation;
   final VoidCallback onScan;
 
-  const Result({
-    required this.inputGrid,
-    required this.outputGrid,
-    required this.onScan,
-  });
+  const Result({required this.operation, required this.onScan});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          ResultGrid(inputGrid: inputGrid, outputGrid: outputGrid),
-          ScanButton(onScan),
-        ],
+        children: [ResultGrid(operation), ScanButton(onScan)],
       ),
     );
   }
 }
 
 class ResultGrid extends StatelessWidget {
-  final Grid inputGrid;
-  final Grid outputGrid;
+  final Operation operation;
 
-  const ResultGrid({required this.inputGrid, required this.outputGrid});
+  const ResultGrid(this.operation);
 
   @override
   Widget build(BuildContext context) {
@@ -138,3 +150,15 @@ class ResultGrid extends StatelessWidget {
 }
 
 enum HomeState { initial, processing, result }
+
+class Operation {
+  final Image inputImage;
+  final Grid inputGrid;
+  final Grid outputGrid;
+
+  const Operation({
+    required this.inputImage,
+    required this.inputGrid,
+    required this.outputGrid,
+  });
+}
