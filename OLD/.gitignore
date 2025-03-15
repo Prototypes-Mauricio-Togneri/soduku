@@ -1,8 +1,0 @@
-.dart_tool/
-.idx/
-.vscode/
-bin/aot/
-bin/web/
-scripts/
-example/test/
-test/resources/files/temp*
