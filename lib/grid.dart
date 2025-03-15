@@ -93,7 +93,7 @@ class Grid {
     return Grid(rows: newRows);
   }
 
-  int _get(int row, int column) => rows[row][column];
+  int get(int row, int column) => rows[row][column];
 
   List<Row> _possibleRows(int index) {
     final List<Row> result = [];
@@ -132,7 +132,7 @@ class Grid {
   }
 
   List<int> _possibleValuesAt(int row, int column) {
-    final int value = _get(row, column);
+    final int value = get(row, column);
 
     if (value == 0) {
       final Set<int> invalidValues = {
@@ -173,7 +173,7 @@ class Grid {
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        final int value = _get(quadrantRow * 3 + i, quadrantColumn * 3 + j);
+        final int value = get(quadrantRow * 3 + i, quadrantColumn * 3 + j);
         result.add(value);
       }
     }

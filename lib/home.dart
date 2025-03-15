@@ -182,20 +182,32 @@ class SolutionPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double fontSize = size.width / 11;
 
-    _drawValue(
-      value: 5,
-      x: 0,
-      y: 0,
-      fontSize: fontSize,
-      canvas: canvas,
-      size: size,
-    );
+    final Grid inputGrid = operation.inputGrid;
+    final Grid outputGrid = operation.outputGrid;
+
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 9; j++) {
+        final int valueInput = inputGrid.get(i, j);
+        final int valueOutput = outputGrid.get(i, j);
+
+        if (valueOutput != valueInput) {
+          _drawValue(
+            value: valueOutput,
+            i: i,
+            j: j,
+            fontSize: fontSize,
+            canvas: canvas,
+            size: size,
+          );
+        }
+      }
+    }
   }
 
   void _drawValue({
     required int value,
-    required int x,
-    required int y,
+    required int i,
+    required int j,
     required double fontSize,
     required Canvas canvas,
     required Size size,
@@ -214,12 +226,10 @@ class SolutionPainter extends CustomPainter {
     );
     textPainter.layout(minWidth: 0, maxWidth: size.width);
 
-    final Offset offset = Offset(
-      (size.width - textPainter.width) / 2,
-      (size.height - textPainter.height) / 2,
-    );
+    final double x = (i * (size.width / 9)) + (textPainter.width / 2);
+    final double y = j * (size.height / 9);
 
-    textPainter.paint(canvas, offset);
+    textPainter.paint(canvas, Offset(x, y));
   }
 
   @override
