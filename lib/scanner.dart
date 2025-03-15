@@ -4,70 +4,32 @@ import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image/image.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sudoku_solver/grid.dart';
 
 class Scanner {
   Future<String> scan() async {
-    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
-    final Image image = decodeImage(data.buffer.asUint8List())!;
     final TextRecognizer textRecognizer = TextRecognizer();
+    final Image image = await _getImage();
     final double cellSize = _cellSize(image);
+    final List<Row> rows = [];
 
-    final List<String> row1 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 0,
-    );
-    final List<String> row2 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 1,
-    );
-    final List<String> row3 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 2,
-    );
-    final List<String> row4 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 3,
-    );
-    final List<String> row5 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 4,
-    );
-    final List<String> row6 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 5,
-    );
-    final List<String> row7 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 6,
-    );
-    final List<String> row8 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 7,
-    );
-    final List<String> row9 = await _parseRow(
-      textRecognizer: textRecognizer,
-      image: image,
-      cellSize: cellSize,
-      rowIndex: 8,
-    );
+    for (int i = 0; i < 9; i++) {
+      final Row row = await _parseRow(
+        textRecognizer: textRecognizer,
+        image: image,
+        cellSize: cellSize,
+        rowIndex: i,
+      );
+      rows.add(row);
+    }
 
-    return '$row1\n$row2\n$row3\n$row4\n$row5\n$row6\n$row7\n$row8\n$row9';
+    return rows.toString();
+  }
+
+  Future<Image> _getImage() async {
+    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
+
+    return decodeImage(data.buffer.asUint8List())!;
   }
 
   double _cellSize(Image image) {
@@ -77,16 +39,16 @@ class Scanner {
     return max(imageWidth, imageHeight) / 9;
   }
 
-  Future<List<String>> _parseRow({
+  Future<Row> _parseRow({
     required TextRecognizer textRecognizer,
     required Image image,
     required double cellSize,
     required int rowIndex,
   }) async {
-    final List<String> result = [];
+    final Row result = [];
 
     for (int i = 0; i < 9; i++) {
-      final String value = await _parseCell(
+      final int value = await _parseCell(
         textRecognizer: textRecognizer,
         image: image,
         rect: Rect.fromLTWH(
@@ -96,13 +58,13 @@ class Scanner {
           cellSize,
         ),
       );
-      result.add(value.isEmpty ? '0' : value);
+      result.add(value);
     }
 
     return result;
   }
 
-  Future<String> _parseCell({
+  Future<int> _parseCell({
     required TextRecognizer textRecognizer,
     required Image image,
     required Rect rect,
@@ -111,10 +73,9 @@ class Scanner {
     final RecognizedText recognizedText = await textRecognizer.processImage(
       inputImage,
     );
-
     final String result = recognizedText.text.trim();
 
-    return result.isEmpty ? '' : result.substring(0, 1);
+    return result.isEmpty ? 0 : int.parse(result.substring(0, 1));
   }
 
   Future _inputImage({required Image image, required Rect rect}) async {
