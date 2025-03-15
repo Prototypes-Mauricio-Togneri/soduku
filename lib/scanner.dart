@@ -27,9 +27,7 @@ class Scanner {
   }
 
   Future<Image> _getImage() async {
-    final ByteData data = await rootBundle.load(
-      'assets/example/sudoku_inverse.png',
-    );
+    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
 
     return decodeImage(data.buffer.asUint8List())!;
   }
@@ -70,11 +68,12 @@ class Scanner {
     required int rowIndex,
     required int columnIndex,
   }) async {
+    final double margin = cellSize * 0.1;
     final Rect rect = Rect.fromLTWH(
-      columnIndex * cellSize,
-      rowIndex * cellSize,
-      cellSize,
-      cellSize,
+      (columnIndex * cellSize) + margin,
+      (rowIndex * cellSize) + margin,
+      cellSize - (margin * 2),
+      cellSize - (margin * 2),
     );
     final InputImage inputImage = await _inputImage(image: image, rect: rect);
     final RecognizedText recognizedText = await textRecognizer.processImage(
