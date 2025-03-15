@@ -12,7 +12,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Grid? result;
+  Grid? inputGrid;
+  Grid? outputGrid;
   HomeState state = HomeState.initial;
 
   @override
@@ -23,7 +24,11 @@ class _HomeState extends State<Home> {
               ? Initial(_onScan)
               : state == HomeState.processing
               ? const Processing()
-              : Result(grid: result!, onScan: _onScan),
+              : Result(
+                inputGrid: inputGrid!,
+                outputGrid: outputGrid!,
+                onScan: _onScan,
+              ),
     );
   }
 
@@ -33,11 +38,21 @@ class _HomeState extends State<Home> {
     });
 
     final Image image = await _getImage();
-    result = await Scanner().scan(image);
+    inputGrid = await Scanner().scan(image);
 
-    setState(() {
-      state = HomeState.result;
-    });
+    try {
+      outputGrid = inputGrid!.solve();
+
+      setState(() {
+        state = HomeState.result;
+      });
+    } catch (e) {
+      // TODO(momo): show error message
+
+      setState(() {
+        state = HomeState.initial;
+      });
+    }
   }
 
   Future<Image> _getImage() async {
@@ -83,26 +98,35 @@ class Processing extends StatelessWidget {
 }
 
 class Result extends StatelessWidget {
-  final Grid grid;
+  final Grid inputGrid;
+  final Grid outputGrid;
   final VoidCallback onScan;
 
-  const Result({required this.grid, required this.onScan});
+  const Result({
+    required this.inputGrid,
+    required this.outputGrid,
+    required this.onScan,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [ResultGrid(grid), ScanButton(onScan)],
+        children: [
+          ResultGrid(inputGrid: inputGrid, outputGrid: outputGrid),
+          ScanButton(onScan),
+        ],
       ),
     );
   }
 }
 
 class ResultGrid extends StatelessWidget {
-  final Grid grid;
+  final Grid inputGrid;
+  final Grid outputGrid;
 
-  const ResultGrid(this.grid);
+  const ResultGrid({required this.inputGrid, required this.outputGrid});
 
   @override
   Widget build(BuildContext context) {
