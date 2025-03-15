@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/services.dart';
+import 'package:image/image.dart';
 import 'package:sudoku_solver/grid.dart';
 import 'package:sudoku_solver/scanner.dart';
 
@@ -49,10 +51,17 @@ class _MyHomePageState extends State<MyHomePage> {
       detectedText = '';
     });
 
-    final Grid grid = await Scanner().scan();
+    final Image image = await _getImage();
+    final Grid grid = await Scanner().scan(image);
 
     setState(() {
-      detectedText = grid.solve().toString();
+      detectedText = grid.toString();
     });
+  }
+
+  Future<Image> _getImage() async {
+    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
+
+    return decodeImage(data.buffer.asUint8List())!;
   }
 }
