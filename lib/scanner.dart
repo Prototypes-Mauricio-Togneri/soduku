@@ -76,10 +76,10 @@ class Scanner {
       cellSize - (margin * 2),
     );
     final InputImage inputImage = await _inputImage(image: image, rect: rect);
-    final RecognizedText recognizedText = await textRecognizer.processImage(
-      inputImage,
+    final String result = await _scanImage(
+      textRecognizer: textRecognizer,
+      image: inputImage,
     );
-    final String result = recognizedText.text.trim();
 
     final Image subImage = copyCrop(
       image,
@@ -94,6 +94,17 @@ class Scanner {
     );
 
     return result.isEmpty ? 0 : _parseValue(result);
+  }
+
+  Future<String> _scanImage({
+    required TextRecognizer textRecognizer,
+    required InputImage image,
+  }) async {
+    final RecognizedText recognizedText = await textRecognizer.processImage(
+      image,
+    );
+
+    return recognizedText.text.trim();
   }
 
   int _parseValue(String value) {
