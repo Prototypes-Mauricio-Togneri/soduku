@@ -182,9 +182,27 @@ class SolutionPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double fontSize = size.width / 11;
 
+    _drawValue(
+      value: 5,
+      x: 0,
+      y: 0,
+      fontSize: fontSize,
+      canvas: canvas,
+      size: size,
+    );
+  }
+
+  void _drawValue({
+    required int value,
+    required int x,
+    required int y,
+    required double fontSize,
+    required Canvas canvas,
+    required Size size,
+  }) {
     final TextPainter textPainter = TextPainter(
       text: TextSpan(
-        text: '5',
+        text: value.toString(),
         style: TextStyle(
           color: Colors.red,
           fontSize: fontSize,
@@ -192,6 +210,7 @@ class SolutionPainter extends CustomPainter {
         ),
       ),
       textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
     );
     textPainter.layout(minWidth: 0, maxWidth: size.width);
 
