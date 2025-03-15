@@ -27,7 +27,9 @@ class Scanner {
   }
 
   Future<Image> _getImage() async {
-    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
+    final ByteData data = await rootBundle.load(
+      'assets/example/sudoku_inverse.png',
+    );
 
     return decodeImage(data.buffer.asUint8List())!;
   }
@@ -92,7 +94,17 @@ class Scanner {
       name: '$rowIndex-$columnIndex-$result',
     );
 
-    return result.isEmpty ? 0 : int.parse(result.substring(0, 1));
+    return result.isEmpty ? 0 : _parseValue(result);
+  }
+
+  int _parseValue(String value) {
+    try {
+      final int result = int.parse(value);
+
+      return (result > 0) && (result < 10) ? result : 88;
+    } catch (e) {
+      return 99;
+    }
   }
 
   Future _inputImage({required Image image, required Rect rect}) async {
