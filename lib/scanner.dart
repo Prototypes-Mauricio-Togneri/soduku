@@ -51,12 +51,9 @@ class Scanner {
       final int value = await _parseCell(
         textRecognizer: textRecognizer,
         image: image,
-        rect: Rect.fromLTWH(
-          i * cellSize,
-          rowIndex * cellSize,
-          cellSize,
-          cellSize,
-        ),
+        cellSize: cellSize,
+        rowIndex: rowIndex,
+        columnIndex: i,
       );
       result.add(value);
     }
@@ -67,13 +64,33 @@ class Scanner {
   Future<int> _parseCell({
     required TextRecognizer textRecognizer,
     required Image image,
-    required Rect rect,
+    required double cellSize,
+    required int rowIndex,
+    required int columnIndex,
   }) async {
+    final Rect rect = Rect.fromLTWH(
+      columnIndex * cellSize,
+      rowIndex * cellSize,
+      cellSize,
+      cellSize,
+    );
     final InputImage inputImage = await _inputImage(image: image, rect: rect);
     final RecognizedText recognizedText = await textRecognizer.processImage(
       inputImage,
     );
     final String result = recognizedText.text.trim();
+
+    final Image subImage = copyCrop(
+      image,
+      rect.left.toInt(),
+      rect.top.toInt(),
+      rect.width.toInt(),
+      rect.height.toInt(),
+    );
+    await _saveImage(
+      subImage: subImage,
+      name: '$rowIndex-$columnIndex-$result',
+    );
 
     return result.isEmpty ? 0 : int.parse(result.substring(0, 1));
   }
