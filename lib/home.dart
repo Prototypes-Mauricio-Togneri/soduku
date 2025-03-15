@@ -158,7 +158,14 @@ class ResultGrid extends StatelessWidget {
             Image.memory(
               Uint8List.fromList(img.encodePng(operation.inputImage)),
             ),
-            CustomPaint(painter: SolutionPainter(operation)),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return CustomPaint(
+                  painter: SolutionPainter(operation),
+                  size: Size(constraints.maxWidth, constraints.maxHeight),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -173,15 +180,14 @@ class SolutionPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double fontSize = size.width / 9;
-    print(fontSize);
+    final double fontSize = size.width / 11;
 
     final TextPainter textPainter = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: '5',
         style: TextStyle(
           color: Colors.red,
-          fontSize: 30,
+          fontSize: fontSize,
           fontWeight: FontWeight.bold,
         ),
       ),
