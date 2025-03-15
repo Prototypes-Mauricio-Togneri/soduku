@@ -8,14 +8,12 @@ import 'package:sudoku_solver/grid.dart';
 
 class Scanner {
   Future<Grid> scan() async {
-    final TextRecognizer textRecognizer = TextRecognizer();
     final Image image = await _getImage();
     final double cellSize = _cellSize(image);
     final List<Row> rows = [];
 
     for (int i = 0; i < 9; i++) {
       final Row row = await _parseRow(
-        textRecognizer: textRecognizer,
         image: image,
         cellSize: cellSize,
         rowIndex: i,
@@ -40,7 +38,6 @@ class Scanner {
   }
 
   Future<Row> _parseRow({
-    required TextRecognizer textRecognizer,
     required Image image,
     required double cellSize,
     required int rowIndex,
@@ -49,7 +46,6 @@ class Scanner {
 
     for (int i = 0; i < 9; i++) {
       final int value = await _parseCell(
-        textRecognizer: textRecognizer,
         image: image,
         rect: Rect.fromLTWH(
           i * cellSize,
@@ -64,12 +60,9 @@ class Scanner {
     return result;
   }
 
-  Future<int> _parseCell({
-    required TextRecognizer textRecognizer,
-    required Image image,
-    required Rect rect,
-  }) async {
+  Future<int> _parseCell({required Image image, required Rect rect}) async {
     final InputImage inputImage = await _inputImage(image: image, rect: rect);
+    final TextRecognizer textRecognizer = TextRecognizer();
     final RecognizedText recognizedText = await textRecognizer.processImage(
       inputImage,
     );
