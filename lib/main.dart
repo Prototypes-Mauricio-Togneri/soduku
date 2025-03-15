@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart' hide Image;
-import 'package:flutter/services.dart';
-import 'package:image/image.dart';
-import 'package:sudoku_solver/grid.dart';
-import 'package:sudoku_solver/scanner.dart';
+import 'package:flutter/material.dart';
+import 'package:sudoku_solver/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,55 +10,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(title: 'Flutter Demo', home: MyHomePage());
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage();
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  String detectedText = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child:
-            detectedText.isEmpty
-                ? const CircularProgressIndicator()
-                : Text(
-                  detectedText,
-                  style: const TextStyle(fontFamily: 'Monospace'),
-                ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _parseImage,
-        child: const Icon(Icons.add),
-      ),
+    return const MaterialApp(
+      title: 'Sudoku Solver',
+      home: Home(),
+      debugShowCheckedModeBanner: false,
     );
-  }
-
-  Future _parseImage() async {
-    setState(() {
-      detectedText = '';
-    });
-
-    final Image image = await _getImage();
-    final Grid grid = await Scanner().scan(image);
-
-    setState(() {
-      detectedText = grid.toString();
-    });
-  }
-
-  Future<Image> _getImage() async {
-    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
-
-    return decodeImage(data.buffer.asUint8List())!;
   }
 }
