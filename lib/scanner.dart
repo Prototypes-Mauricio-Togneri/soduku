@@ -63,57 +63,31 @@ class Scanner {
       cellSize - (margin * 2),
       cellSize - (margin * 2),
     );
-    //final InputImage inputImage = await _inputImage(image: image, rect: rect);
-    final File inputImage = await _inputImage(image: image, rect: rect);
-    final String result = await _scanImage(image: inputImage);
-
-    final Image subImage = copyCrop(
-      image,
-      rect.left.toInt(),
-      rect.top.toInt(),
-      rect.width.toInt(),
-      rect.height.toInt(),
-    );
-    await _saveImage(
-      subImage: subImage,
-      name: '$rowIndex-$columnIndex-$result',
-    );
-
-    return result.isEmpty ? 0 : _parseValue(result);
-  }
-
-  Future<String> _scanImage({required File image}) async {
-    final String text = await FlutterTesseractOcr.extractText(
-      image.path,
+    final File cellImage = await _cellImage(image: image, rect: rect);
+    final String result = await FlutterTesseractOcr.extractText(
+      cellImage.path,
       language: 'eng',
       args: {'psm': '10'}, // Treat the image as a single character
     );
 
-    return text.trim();
+    return _parseValue(result.trim());
   }
 
-  /*Future<String> _scanImage2({
-    required TextRecognizer textRecognizer,
-    required InputImage image,
-  }) async {
-    final RecognizedText recognizedText = await textRecognizer.processImage(
-      image,
-    );
-
-    return recognizedText.text.trim();
-  }*/
-
   int _parseValue(String value) {
-    try {
-      final int result = int.parse(value);
+    if (value.isNotEmpty) {
+      try {
+        final int result = int.parse(value);
 
-      return (result > 0) && (result < 10) ? result : 0;
-    } catch (e) {
+        return (result > 0) && (result < 10) ? result : 0;
+      } catch (e) {
+        return 0;
+      }
+    } else {
       return 0;
     }
   }
 
-  Future<File> _inputImage({required Image image, required Rect rect}) async {
+  Future<File> _cellImage({required Image image, required Rect rect}) async {
     final Image subImage = copyCrop(
       image,
       rect.left.toInt(),
@@ -125,29 +99,13 @@ class Scanner {
     return _saveImage(subImage: subImage, name: 'sub_image');
   }
 
-  /*Future<InputImage> _inputImage2({
-    required Image image,
-    required Rect rect,
-  }) async {
-    final Image subImage = copyCrop(
-      image,
-      rect.left.toInt(),
-      rect.top.toInt(),
-      rect.width.toInt(),
-      rect.height.toInt(),
-    );
-    final File file = await _saveImage(subImage: subImage, name: 'sub_image');
-
-    return InputImage.fromFile(file);
-  }*/
-
   Future<File> _saveImage({
     required Image subImage,
     required String name,
   }) async {
-    //final Directory directory = await getTemporaryDirectory();
-    final Directory? directory = await getDownloadsDirectory();
-    final File file = File('${directory?.path}/$name.png');
+    final Directory directory = await getTemporaryDirectory();
+    //final Directory? directory = await getDownloadsDirectory();
+    final File file = File('${directory.path}/$name.png');
     await file.writeAsBytes(encodePng(subImage));
 
     return file;
