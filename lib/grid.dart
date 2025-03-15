@@ -255,8 +255,3 @@ class Grid {
 
   String _printCell(int value) => value == 0 ? '_' : value.toString();
 }
-
-void main(List<String> args) {
-  final Grid grid = Grid.fromFile('./test/resources/example1.txt');
-  print(grid.solve());
-}

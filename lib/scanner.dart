@@ -8,6 +8,8 @@ import 'package:sudoku_solver/grid.dart';
 
 class Scanner {
   Future<Grid> scan(Image image) async {
+    _saveImage(subImage: image, name: 'original_image');
+
     final double cellSize = _cellSize(image);
     final List<Row> rows = [];
 

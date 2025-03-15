@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:image/image.dart' as img;
 import 'package:sudoku_solver/grid.dart' hide Column;
 import 'package:sudoku_solver/scanner.dart';
@@ -47,9 +50,6 @@ class _HomeState extends State<Home> {
       final Grid inputGrid = await Scanner().scan(image);
       final Grid outputGrid = inputGrid.solve();
 
-      print(inputGrid);
-      print(outputGrid);
-
       operation = Operation(
         inputImage: image,
         inputGrid: inputGrid,
@@ -60,7 +60,9 @@ class _HomeState extends State<Home> {
         state = HomeState.result;
       });
     } catch (e) {
-      _showError();
+      if (!(e is PlatformException)) {
+        _showError('The Sudoku could not be solved.');
+      }
 
       setState(() {
         state = HomeState.initial;
@@ -68,12 +70,36 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void _showError() {
+  Future<img.Image> _getImage() async {
+    final DocumentScannerOptions options = DocumentScannerOptions(
+      documentFormat: DocumentFormat.jpeg,
+      mode: ScannerMode.full,
+      pageLimit: 1,
+      isGalleryImport: true,
+    );
+    final DocumentScanner scanner = DocumentScanner(options: options);
+
+    try {
+      final DocumentScanningResult result = await scanner.scanDocument();
+      final List<String> images = result.images;
+
+      if (images.isNotEmpty) {
+        final File file = File(images.first);
+        return img.decodeImage(file.readAsBytesSync())!;
+      } else {
+        throw Exception();
+      }
+    } finally {
+      await scanner.close();
+    }
+  }
+
+  void _showError(String message) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          content: const Text('The Sudoku could not be solved.'),
+          content: Text(message),
           actions: [
             TextButton(
               child: const Text('OK'),
@@ -85,12 +111,6 @@ class _HomeState extends State<Home> {
         );
       },
     );
-  }
-
-  Future<img.Image> _getImage() async {
-    final ByteData data = await rootBundle.load('assets/example/sudoku.png');
-
-    return img.decodeImage(data.buffer.asUint8List())!;
   }
 }
 

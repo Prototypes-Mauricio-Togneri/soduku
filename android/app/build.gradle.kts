@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mauriciotogneri.sudoku"
+    namespace = "com.mauriciotogneri.sudoku_solver"
     compileSdk = 35
     ndkVersion = "28.0.13004108"
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.mauriciotogneri.sudoku"
+        applicationId = "com.mauriciotogneri.sudoku_solver"
         minSdk = 21
         targetSdk = 33
         versionCode = flutter.versionCode

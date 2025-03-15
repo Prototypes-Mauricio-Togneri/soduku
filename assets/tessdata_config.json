@@ -1,6 +1,5 @@
 {
-  "files": [
-    "eng.traineddata",
-    "OCRB.traineddata"
-  ]
+    "files": [
+        "eng.traineddata"
+    ]
 }
