@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/services.dart';
 import 'package:image/image.dart';
-import 'package:sudoku_solver/grid.dart';
+import 'package:sudoku_solver/grid.dart' hide Column;
 import 'package:sudoku_solver/scanner.dart';
 
 class Home extends StatefulWidget {
@@ -23,7 +23,7 @@ class _HomeState extends State<Home> {
               ? Initial(_onScan)
               : state == HomeState.processing
               ? const Processing()
-              : Result(result!),
+              : Result(grid: result!, onScan: _onScan),
     );
   }
 
@@ -54,8 +54,21 @@ class Initial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(onPressed: onScan, child: const Text('SCAN')),
+    return Center(child: ScanButton(onScan));
+  }
+}
+
+class ScanButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const ScanButton(this.onPressed);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: const Icon(Icons.camera_alt_outlined),
+      label: const Text('SCAN'),
     );
   }
 }
@@ -71,16 +84,31 @@ class Processing extends StatelessWidget {
 
 class Result extends StatelessWidget {
   final Grid grid;
+  final VoidCallback onScan;
 
-  const Result(this.grid);
+  const Result({required this.grid, required this.onScan});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        grid.toString(),
-        style: const TextStyle(fontFamily: 'Monospace'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [ResultGrid(grid), ScanButton(onScan)],
       ),
+    );
+  }
+}
+
+class ResultGrid extends StatelessWidget {
+  final Grid grid;
+
+  const ResultGrid(this.grid);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(36),
+      child: AspectRatio(aspectRatio: 1, child: Placeholder()),
     );
   }
 }
