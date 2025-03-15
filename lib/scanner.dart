@@ -86,21 +86,20 @@ class Scanner {
       rect.width.toInt(),
       rect.height.toInt(),
     );
-
-    //final Directory directory = await getTemporaryDirectory();
-    final Directory? directory = await getDownloadsDirectory();
-    final File file = File('${directory?.path}/sub_image.png');
-    await file.writeAsBytes(encodePng(subImage));
+    final File file = await _saveImage(subImage: subImage, name: 'sub_image');
 
     return InputImage.fromFile(file);
   }
 
-  Future<InputImage> inputImageCleaned() async {
-    final ByteData buffer = await rootBundle.load('assets/example/cleaned.png');
+  Future<File> _saveImage({
+    required Image subImage,
+    required String name,
+  }) async {
+    //final Directory directory = await getTemporaryDirectory();
     final Directory? directory = await getDownloadsDirectory();
-    final File file = File('${directory?.path}/sudoku.png');
-    await file.writeAsBytes(buffer.buffer.asUint8List());
+    final File file = File('${directory?.path}/$name.png');
+    await file.writeAsBytes(encodePng(subImage));
 
-    return InputImage.fromFile(file);
+    return file;
   }
 }
