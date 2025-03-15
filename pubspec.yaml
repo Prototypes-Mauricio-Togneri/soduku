@@ -26,3 +26,5 @@ flutter:
 
   assets:
     - assets/example/
+    - assets/tessdata/
+    - assets/tessdata_config.json

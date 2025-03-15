@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final Grid grid = await Scanner().scan();
 
     setState(() {
-      detectedText = grid.toString();
+      detectedText = grid.solve().toString();
     });
   }
 }
