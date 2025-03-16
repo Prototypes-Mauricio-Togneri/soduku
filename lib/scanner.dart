@@ -2,17 +2,22 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_tesseract_ocr/android_ios.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image/image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sudoku_solver/grid.dart';
 
 class Scanner {
-  Future<Grid> scan(Image image) async {
+  Future<Grid> scan({
+    required ScanProvider provider,
+    required Image image,
+  }) async {
     final double cellSize = _cellSize(image);
     final List<Row> rows = [];
 
     for (int i = 0; i < 9; i++) {
       final Row row = await _parseRow(
+        provider: provider,
         image: image,
         cellSize: cellSize,
         rowIndex: i,
@@ -31,6 +36,7 @@ class Scanner {
   }
 
   Future<Row> _parseRow({
+    required ScanProvider provider,
     required Image image,
     required double cellSize,
     required int rowIndex,
@@ -39,6 +45,7 @@ class Scanner {
 
     for (int i = 0; i < 9; i++) {
       final int value = await _parseCell(
+        provider: provider,
         image: image,
         cellSize: cellSize,
         rowIndex: rowIndex,
@@ -51,6 +58,7 @@ class Scanner {
   }
 
   Future<int> _parseCell({
+    required ScanProvider provider,
     required Image image,
     required double cellSize,
     required int rowIndex,
@@ -64,13 +72,42 @@ class Scanner {
       cellSize - (margin * 2),
     );
     final File cellImage = await _cellImage(image: image, rect: rect);
-    final String result = await FlutterTesseractOcr.extractText(
-      cellImage.path,
-      language: 'eng',
-      args: {'psm': '10'}, // Treat the image as a single character
-    );
+    final String result =
+        provider == ScanProvider.tesseract
+            ? await _scanWithTesseract(cellImage)
+            : await _scanWithMLKit(cellImage);
 
     return _parseValue(result.trim());
+  }
+
+  Future<String> _scanWithTesseract(File file) =>
+      FlutterTesseractOcr.extractText(
+        file.path,
+        language: 'eng',
+        args: {'psm': '10'}, // Treat the image as a single character
+      );
+
+  Future<String> _scanWithMLKit(File file) async {
+    String result = '';
+    final TextRecognizer textRecognizer = TextRecognizer();
+    final RecognizedText recognisedText = await textRecognizer.processImage(
+      InputImage.fromFilePath(file.path),
+    );
+    recognisedText.blocks.forEach((block) {
+      block.lines.forEach((line) {
+        line.elements.forEach((element) {
+          element.symbols.forEach((symbol) {
+            final double angle = symbol.angle ?? 0;
+
+            if ((angle.abs() <= 10) && (symbol.text != result)) {
+              result += symbol.text;
+            }
+          });
+        });
+      });
+    });
+
+    return result;
   }
 
   int _parseValue(String value) {
@@ -111,3 +148,5 @@ class Scanner {
     return file;
   }
 }
+
+enum ScanProvider { tesseract, mlkit }

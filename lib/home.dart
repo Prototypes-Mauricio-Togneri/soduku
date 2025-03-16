@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:image/image.dart' as img;
-import 'package:sudoku_solver/grid.dart' hide Column;
+import 'package:sudoku_solver/grid.dart' hide Row, Column;
 import 'package:sudoku_solver/scanner.dart';
 
 class Home extends StatefulWidget {
@@ -39,14 +39,17 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future _onScan() async {
+  Future _onScan(ScanProvider provider) async {
     setState(() {
       state = HomeState.processing;
     });
 
     try {
       final img.Image image = await _getImage();
-      final Grid inputGrid = await Scanner().scan(image);
+      final Grid inputGrid = await Scanner().scan(
+        provider: provider,
+        image: image,
+      );
       final Grid outputGrid = inputGrid.solve();
 
       operation = Operation(
@@ -114,7 +117,7 @@ class _HomeState extends State<Home> {
 }
 
 class Initial extends StatelessWidget {
-  final VoidCallback onScan;
+  final Function(ScanProvider) onScan;
 
   const Initial(this.onScan);
 
@@ -125,16 +128,27 @@ class Initial extends StatelessWidget {
 }
 
 class ScanButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final Function(ScanProvider) onPressed;
 
   const ScanButton(this.onPressed);
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: const Icon(Icons.camera_alt_outlined),
-      label: const Text('SCAN'),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () => onPressed(ScanProvider.tesseract),
+          icon: const Icon(Icons.camera_alt_outlined),
+          label: const Text('SCAN WITH TESSERACT'),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: () => onPressed(ScanProvider.mlkit),
+          icon: const Icon(Icons.camera_alt_outlined),
+          label: const Text('SCAN WITH ML KIT'),
+        ),
+      ],
     );
   }
 }
@@ -150,7 +164,7 @@ class Processing extends StatelessWidget {
 
 class Result extends StatelessWidget {
   final Operation operation;
-  final VoidCallback onScan;
+  final Function(ScanProvider) onScan;
 
   const Result({required this.operation, required this.onScan});
 
