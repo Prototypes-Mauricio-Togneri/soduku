@@ -75,7 +75,11 @@ class Scanner {
     final String result =
         provider == ScanProvider.tesseract
             ? await _scanWithTesseract(cellImage)
-            : await _scanWithMLKit(cellImage);
+            : await _scanWithMLKit(
+              file: cellImage,
+              rowIndex: rowIndex,
+              columnIndex: columnIndex,
+            );
 
     return _parseValue(result.trim());
   }
@@ -87,7 +91,11 @@ class Scanner {
         args: {'psm': '10'}, // Treat the image as a single character
       );
 
-  Future<String> _scanWithMLKit(File file) async {
+  Future<String> _scanWithMLKit({
+    required File file,
+    required int rowIndex,
+    required int columnIndex,
+  }) async {
     String result = '';
     final TextRecognizer textRecognizer = TextRecognizer();
     final RecognizedText recognisedText = await textRecognizer.processImage(
@@ -96,11 +104,20 @@ class Scanner {
     recognisedText.blocks.forEach((block) {
       block.lines.forEach((line) {
         line.elements.forEach((element) {
-          element.symbols.forEach((symbol) {
+          element.symbols.forEach((originalSymbol) {
+            final TextSymbol symbol = _sanitizeSymbol(originalSymbol);
             final double angle = symbol.angle ?? 0;
+            final String value = symbol.text;
 
-            if ((angle.abs() <= 10) && (symbol.text != result)) {
-              result += symbol.text;
+            if ((angle.abs() <= 20) && (value != result)) {
+              result += value;
+              print(
+                'VALUE: [$rowIndex, $columnIndex]: ${symbol.text} ${symbol.angle} ${symbol.confidence} (YES)',
+              );
+            } else {
+              print(
+                'VALUE: [$rowIndex, $columnIndex]: ${symbol.text} ${symbol.angle} ${symbol.confidence} (NO)',
+              );
             }
           });
         });
@@ -108,6 +125,36 @@ class Scanner {
     });
 
     return result;
+  }
+
+  TextSymbol _sanitizeSymbol(TextSymbol symbol) {
+    final double angle = symbol.angle ?? 0;
+    final String value = symbol.text;
+    final bool isUpsideDown = (180 - angle.abs()).abs() <= 10;
+
+    if (isUpsideDown) {
+      if (value == '6') {
+        return TextSymbol(
+          text: '9',
+          boundingBox: symbol.boundingBox,
+          recognizedLanguages: symbol.recognizedLanguages,
+          cornerPoints: symbol.cornerPoints,
+          confidence: symbol.confidence,
+          angle: 0,
+        );
+      } else if (value == '9') {
+        return TextSymbol(
+          text: '6',
+          boundingBox: symbol.boundingBox,
+          recognizedLanguages: symbol.recognizedLanguages,
+          cornerPoints: symbol.cornerPoints,
+          confidence: symbol.confidence,
+          angle: 0,
+        );
+      }
+    }
+
+    return symbol;
   }
 
   int _parseValue(String value) {
