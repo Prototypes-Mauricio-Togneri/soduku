@@ -56,7 +56,7 @@ class Grid {
     return true;
   }
 
-  Grid solve() {
+  Grid _solveBacktracking() {
     final Grid? solution = _solveForRow(0);
 
     if (solution != null) {
@@ -64,6 +64,35 @@ class Grid {
     } else {
       throw Exception('Unsolvable Sudoku');
     }
+  }
+
+  Grid _solveInferring() {
+    bool canInfer = true;
+
+    while (canInfer) {
+      canInfer = false;
+
+      for (int row = 0; row < 9; row++) {
+        for (int column = 0; column < 9; column++) {
+          if (get(row, column) == 0) {
+            final List<int> values = _possibleValuesAt(row, column);
+
+            if (values.length == 1) {
+              set(row, column, values.first);
+              canInfer = true;
+            }
+          }
+        }
+      }
+    }
+
+    return this;
+  }
+
+  Grid solve() {
+    final Grid solution = _solveInferring();
+
+    return solution.isSolved ? this : solution._solveBacktracking();
   }
 
   Grid? _solveForRow(int index) {
@@ -94,6 +123,8 @@ class Grid {
   }
 
   int get(int row, int column) => rows[row][column];
+
+  void set(int row, int column, int value) => rows[row][column] = value;
 
   List<Row> _possibleRows(int index) {
     final List<Row> result = [];
@@ -186,7 +217,7 @@ class Grid {
     final List<Row> rows = [];
 
     for (final String line in lines) {
-      final List<int> row = line.split(' ').map(int.parse).toList();
+      final List<int> row = line.trim().split(' ').map(int.parse).toList();
       rows.add(row);
     }
 
@@ -254,4 +285,36 @@ class Grid {
   }
 
   String _printCell(int value) => value == 0 ? '_' : value.toString();
+}
+
+void main(List<String> args) {
+  /*const String data = '''
+    5 3 0 0 7 0 0 0 0
+    6 0 0 1 9 5 0 0 0
+    0 9 8 0 0 0 0 6 0
+    8 0 0 0 6 0 0 0 3
+    4 0 0 8 0 3 0 0 1
+    7 0 0 0 2 0 0 0 6
+    0 6 0 0 0 0 2 8 0
+    0 0 0 4 1 9 0 0 5
+    0 0 0 0 8 0 0 7 9
+  ''';*/
+  const String data = '''
+    0 7 0 0 0 1 9 0 0
+    0 0 0 0 6 0 0 5 0
+    0 0 9 0 0 0 0 0 3
+    0 0 5 6 0 0 0 0 0
+    0 2 8 0 3 0 0 0 0
+    7 0 3 0 0 5 0 0 0
+    1 0 7 9 0 0 0 0 2
+    2 0 0 0 0 0 0 0 6
+    3 0 0 1 0 0 0 0 0
+  ''';
+  final Grid grid = Grid.fromString(data.trim());
+  final int now = DateTime.now().millisecondsSinceEpoch;
+  final Grid solution = grid.solve();
+  final int then = DateTime.now().millisecondsSinceEpoch;
+
+  print(solution);
+  print('Elapsed time: ${then - now} ms');
 }
