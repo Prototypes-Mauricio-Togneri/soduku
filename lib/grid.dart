@@ -6,11 +6,11 @@ typedef Column = List<int>;
 typedef Quadrant = List<int>;
 
 class Grid {
-  final List<Row> rows;
+  final List<Row> _rows;
 
-  const Grid({required this.rows});
+  const Grid({required List<List<int>> rows}) : _rows = rows;
 
-  List<Column> get columns => [
+  List<Column> get _columns => [
     _column(0),
     _column(1),
     _column(2),
@@ -22,7 +22,7 @@ class Grid {
     _column(8),
   ];
 
-  List<Quadrant> get quadrants => [
+  List<Quadrant> get _quadrants => [
     _quadrant(0, 0),
     _quadrant(0, 1),
     _quadrant(0, 2),
@@ -35,19 +35,19 @@ class Grid {
   ];
 
   bool get isSolved {
-    for (final Row row in rows) {
+    for (final Row row in _rows) {
       if (row.contains(0) || _hasDuplicates(row)) {
         return false;
       }
     }
 
-    for (final Column column in columns) {
+    for (final Column column in _columns) {
       if (column.contains(0) || _hasDuplicates(column)) {
         return false;
       }
     }
 
-    for (final Quadrant quadrant in quadrants) {
+    for (final Quadrant quadrant in _quadrants) {
       if (quadrant.contains(0) || _hasDuplicates(quadrant)) {
         return false;
       }
@@ -56,17 +56,40 @@ class Grid {
     return true;
   }
 
+  bool get isUnsolvable {
+    for (final Row row in _rows) {
+      if (_hasDuplicates(row.where((e) => e != 0).toList())) {
+        return true;
+      }
+    }
+
+    for (final Column column in _columns) {
+      if (_hasDuplicates(column.where((e) => e != 0).toList())) {
+        return true;
+      }
+    }
+
+    for (final Quadrant quadrant in _quadrants) {
+      if (_hasDuplicates(quadrant.where((e) => e != 0).toList())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Grid _solveBacktracking() {
     final Grid? solution = _solveForRow(0);
 
     if (solution != null) {
       return solution;
     } else {
-      throw Exception('Unsolvable Sudoku');
+      throw UnsolvableSudoku();
     }
   }
 
   Grid _solveInferring() {
+    final Grid grid = Grid(rows: _cloneRows());
     bool canInfer = true;
 
     while (canInfer) {
@@ -74,11 +97,11 @@ class Grid {
 
       for (int row = 0; row < 9; row++) {
         for (int column = 0; column < 9; column++) {
-          if (get(row, column) == 0) {
-            final List<int> values = _possibleValuesAt(row, column);
+          if (grid.get(row, column) == 0) {
+            final List<int> values = grid._possibleValuesAt(row, column);
 
             if (values.length == 1) {
-              set(row, column, values.first);
+              grid.set(row, column, values.first);
               canInfer = true;
             }
           }
@@ -86,13 +109,17 @@ class Grid {
       }
     }
 
-    return this;
+    return grid;
   }
 
   Grid solve() {
-    final Grid solution = _solveInferring();
+    if (isUnsolvable) {
+      throw UnsolvableSudoku();
+    } else {
+      final Grid solution = _solveInferring();
 
-    return solution.isSolved ? this : solution._solveBacktracking();
+      return solution.isSolved ? solution : solution._solveBacktracking();
+    }
   }
 
   Grid? _solveForRow(int index) {
@@ -116,15 +143,15 @@ class Grid {
   }
 
   Grid _withRow(Row row, int index) {
-    final List<Row> newRows = List.of(rows);
+    final List<Row> newRows = _cloneRows();
     newRows[index] = row;
 
     return Grid(rows: newRows);
   }
 
-  int get(int row, int column) => rows[row][column];
+  int get(int row, int column) => _rows[row][column];
 
-  void set(int row, int column, int value) => rows[row][column] = value;
+  void set(int row, int column, int value) => _rows[row][column] = value;
 
   List<Row> _possibleRows(int index) {
     final List<Row> result = [];
@@ -167,7 +194,7 @@ class Grid {
 
     if (value == 0) {
       final Set<int> invalidValues = {
-        ...rows[row],
+        ..._rows[row],
         ..._column(column),
         ..._quadrant(row, column),
       };
@@ -186,15 +213,15 @@ class Grid {
   }
 
   Column _column(int index) => [
-    rows[0][index],
-    rows[1][index],
-    rows[2][index],
-    rows[3][index],
-    rows[4][index],
-    rows[5][index],
-    rows[6][index],
-    rows[7][index],
-    rows[8][index],
+    _rows[0][index],
+    _rows[1][index],
+    _rows[2][index],
+    _rows[3][index],
+    _rows[4][index],
+    _rows[5][index],
+    _rows[6][index],
+    _rows[7][index],
+    _rows[8][index],
   ];
 
   Quadrant _quadrant(int row, int column) {
@@ -257,17 +284,17 @@ class Grid {
     String result = '';
 
     result += '┌───────┬───────┬───────┐\n';
-    result += _printRow(rows[0]);
-    result += _printRow(rows[1]);
-    result += _printRow(rows[2]);
+    result += _printRow(_rows[0]);
+    result += _printRow(_rows[1]);
+    result += _printRow(_rows[2]);
     result += '├───────┼───────┼───────┤\n';
-    result += _printRow(rows[3]);
-    result += _printRow(rows[4]);
-    result += _printRow(rows[5]);
+    result += _printRow(_rows[3]);
+    result += _printRow(_rows[4]);
+    result += _printRow(_rows[5]);
     result += '├───────┼───────┼───────┤\n';
-    result += _printRow(rows[6]);
-    result += _printRow(rows[7]);
-    result += _printRow(rows[8]);
+    result += _printRow(_rows[6]);
+    result += _printRow(_rows[7]);
+    result += _printRow(_rows[8]);
     result += '└───────┴───────┴───────┘\n';
 
     return result;
@@ -285,6 +312,25 @@ class Grid {
   }
 
   String _printCell(int value) => value == 0 ? '_' : value.toString();
+
+  List<Row> _cloneRows() {
+    final List<Row> result = [];
+
+    for (final Row row in _rows) {
+      result.add(List.of(row));
+    }
+
+    return result;
+  }
+}
+
+class UnsolvableSudoku implements Exception {
+  final String message;
+
+  UnsolvableSudoku([this.message = 'The Sudoku puzzle is unsolvable.']);
+
+  @override
+  String toString() => message;
 }
 
 void main(List<String> args) {
@@ -300,19 +346,19 @@ void main(List<String> args) {
     0 0 0 0 8 0 0 7 9
   ''';*/
   const String data = '''
-    0 7 0 0 0 1 9 0 0
-    0 0 0 0 6 0 0 5 0
-    0 0 9 0 0 0 0 0 3
-    0 0 5 6 0 0 0 0 0
-    0 2 8 0 3 0 0 0 0
-    7 0 3 0 0 5 0 0 0
-    1 0 7 9 0 0 0 0 2
-    2 0 0 0 0 0 0 0 6
-    3 0 0 1 0 0 0 0 0
+    0 2 0 6 0 8 0 0 0
+    5 8 0 0 0 9 7 0 0
+    0 0 0 0 4 0 0 0 0
+    3 7 0 0 0 0 5 0 0
+    6 0 0 0 0 0 0 0 4
+    0 0 8 0 0 0 0 1 3
+    0 0 0 0 2 0 0 0 0
+    0 0 9 8 0 0 0 3 6
+    0 0 0 3 0 6 0 9 0
   ''';
-  final Grid grid = Grid.fromString(data.trim());
+  final Grid original = Grid.fromString(data.trim());
   final int now = DateTime.now().millisecondsSinceEpoch;
-  final Grid solution = grid.solve();
+  final Grid solution = original.solve();
   final int then = DateTime.now().millisecondsSinceEpoch;
 
   print(solution);
