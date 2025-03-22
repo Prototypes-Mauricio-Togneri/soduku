@@ -57,7 +57,9 @@ class Scanner {
     return result;
   }
 
-  // TODO(momo): https://github.com/darusc/Android-Sudoku-Solver-OCR
+  // TODO(momo): Review
+  // https://github.com/darusc/Android-Sudoku-Solver-OCR
+  // https://pub.dev/packages/edge_detection
   Future<int> _parseCell({
     required ScanProvider provider,
     required Image image,
