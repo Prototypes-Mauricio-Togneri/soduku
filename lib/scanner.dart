@@ -57,6 +57,7 @@ class Scanner {
     return result;
   }
 
+  // TODO(momo): https://github.com/darusc/Android-Sudoku-Solver-OCR
   Future<int> _parseCell({
     required ScanProvider provider,
     required Image image,
